@@ -1,0 +1,11 @@
+# Dockerfile for R for pipelines.
+# This based on a bioconductor container, with packages included to run
+# lab pipelines. 
+
+FROM python:3.8.1
+
+MAINTAINER Nathan Sheffield <nathan@code.databio.org>
+
+# Install required Python packages
+RUN git clone https://github.com/databio/peppro.git
+RUN cd peppro && pip install -r requirements.txt

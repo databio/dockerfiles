@@ -30,4 +30,5 @@ In this repo is a [Makefile](Makefile) with recipes for building each image.  Ty
 
 
 ## Available images
+- [pypipe](Dockerfiles/Dockerfile_pypipe)
 - [rpipe](Dockerfiles/Dockerfile_rpipe)
