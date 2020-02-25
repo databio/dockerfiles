@@ -15,3 +15,8 @@ RUN Rscript -e 'devtools::install_github("databio/GenomicDistributions")'
 
 RUN git clone https://github.com/databio/peppro.git
 RUN cd peppro && Rscript -e 'devtools::install(file.path("PEPPROr/"), dependencies=TRUE, repos="https://cloud.r-project.org/")'
+RUN rm -rf peppro
+
+RUN git clone https://github.com/databio/pepatac.git
+RUN cd pepatac && git checkout dev &&Rscript -e 'devtools::install(file.path("PEPATACr/"), dependencies=TRUE, repos="https://cloud.r-project.org/")'
+RUN rm -rf pepatac
