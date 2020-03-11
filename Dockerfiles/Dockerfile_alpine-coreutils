@@ -1,0 +1,9 @@
+# Dockerfile for GNU coreutils.
+# This based on a minimal alpine linux container, with packages included to run
+# lab pipelines. 
+
+FROM alpine:3.11.3
+
+MAINTAINER Jason Smith <jasonsmith@virginia.edu>
+
+RUN apk add --update coreutils && rm -rf /var/cache/apk/*
