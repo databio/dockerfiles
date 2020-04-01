@@ -1,0 +1,1 @@
+docker run --rm databio/mkdocs mkdocs --version | cut -f3 -d' '
