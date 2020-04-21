@@ -11,6 +11,7 @@ RUN Rscript -e 'install.packages("devtools")'
 RUN Rscript -e 'devtools::install_github("pepkit/pepr")'
 RUN Rscript -e 'install.packages("BiocManager")'
 RUN Rscript -e 'BiocManager::install("GenomicRanges")'
+RUN Rscript -e 'BiocManager::install("Biostrings")'
 RUN Rscript -e 'devtools::install_github("databio/GenomicDistributions")'
 
 RUN git clone https://github.com/databio/peppro.git
