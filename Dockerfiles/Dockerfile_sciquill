@@ -1,0 +1,30 @@
+FROM pandoc/latex
+
+# tlmgr search --global --file "authblk.sty"
+
+RUN tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet
+
+# Latex packages
+
+RUN tlmgr install algorithms
+RUN tlmgr install algorithmicx
+RUN tlmgr install wrapfig
+RUN tlmgr install dblfloatfix
+RUN tlmgr install ifsym
+RUN tlmgr install preprint
+RUN tlmgr install sttools
+RUN tlmgr install mdframed
+RUN tlmgr install zref
+RUN tlmgr install needspace
+RUN tlmgr install titlesec
+RUN tlmgr install enumitem
+RUN tlmgr install titling
+
+# Fonts
+
+RUN tlmgr install charter
+RUN tlmgr install helvetic
+
+# For images
+
+RUN tlmgr install transparent

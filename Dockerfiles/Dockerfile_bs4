@@ -1,4 +1,9 @@
 FROM python:3.8.1
 
+RUN apt update
+RUN apt install ghostscript  -y --no-install-recommends
+
+
 RUN pip install beautifulsoup4
 RUN pip install requests
+
