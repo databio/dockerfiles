@@ -7,3 +7,6 @@ FROM alpine:3.11.3
 MAINTAINER Jason Smith <jasonsmith@virginia.edu>
 
 RUN apk add --update coreutils && rm -rf /var/cache/apk/*
+
+# grep with busybox lacks -P option; this upgrades it.
+RUN apk add --no-cache --upgrade grep
