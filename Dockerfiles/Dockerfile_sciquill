@@ -1,8 +1,9 @@
-FROM pandoc/latex
+FROM pandoc/latex:2.10
 
 # tlmgr search --global --file "authblk.sty"
 
 RUN tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet
+RUN tlmgr update --self
 
 # Latex packages
 
