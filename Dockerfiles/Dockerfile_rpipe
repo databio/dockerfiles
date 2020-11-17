@@ -2,7 +2,7 @@
 # This based on a bioconductor container, with packages included to run
 # lab pipelines. 
 
-FROM bioconductor/bioconductor_docker:RELEASE_3_10
+FROM bioconductor/bioconductor_docker:RELEASE_3_12
 
 MAINTAINER Nathan Sheffield <nathan@code.databio.org>
 
@@ -19,5 +19,5 @@ RUN cd peppro && Rscript -e 'devtools::install(file.path("PEPPROr/"), dependenci
 RUN rm -rf peppro
 
 RUN git clone https://github.com/databio/pepatac.git
-RUN cd pepatac && git checkout dev &&Rscript -e 'devtools::install(file.path("PEPATACr/"), dependencies=TRUE, repos="https://cloud.r-project.org/")'
+RUN cd pepatac && Rscript -e 'devtools::install(file.path("PEPATACr/"), dependencies=TRUE, repos="https://cloud.r-project.org/")'
 RUN rm -rf pepatac
