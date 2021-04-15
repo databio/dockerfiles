@@ -1,6 +1,9 @@
-FROM pandoc/latex:2.10
+FROM pandoc/latex:2.13
 
+# To find which packages contain a given .sty file:
 # tlmgr search --global --file "authblk.sty"
+# or, for a font file:
+# tlmgr search --global --file "pplr7t.tfm"
 
 RUN tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet
 RUN tlmgr update --self
@@ -20,12 +23,32 @@ RUN tlmgr install needspace
 RUN tlmgr install titlesec
 RUN tlmgr install enumitem
 RUN tlmgr install titling
+RUN tlmgr install csvsimple
+RUN tlmgr install changepage
 
 # Fonts
 
 RUN tlmgr install charter
 RUN tlmgr install helvetic
+RUN tlmgr install ly1
+RUN tlmgr install courier
+RUN tlmgr install bold-extra
+RUN tlmgr install cm-mf-extra-bold
+RUN tlmgr install palatino
+
+# Tabs
+RUN tlmgr install tabto-ltx
 
 # For images
 
 RUN tlmgr install transparent
+RUN apk add patch
+
+# Patch longtable to work with pandoc
+
+ADD includes/longtable.diff /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.diff
+RUN patch /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.sty < /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.diff
+
+RUN tlmgr install tabu
+
+ENTRYPOINT []
