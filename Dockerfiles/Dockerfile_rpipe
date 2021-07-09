@@ -2,7 +2,7 @@
 # This based on a bioconductor container, with packages included to run
 # lab pipelines. 
 
-FROM bioconductor/bioconductor_docker:RELEASE_3_10
+FROM bioconductor/bioconductor_docker:RELEASE_3_11
 
 MAINTAINER Nathan Sheffield <nathan@code.databio.org>
 

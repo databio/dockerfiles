@@ -7,9 +7,10 @@ RUN tar xzvf docker-19.03.9.tgz
 RUN cp docker/* /usr/bin
 
 #RUN pip3 install bulker
-RUN pip install https://github.com/databio/bulker/archive/dev.zip
+RUN pip install https://github.com/databio/bulker/archive/master.zip
 
 ENV BULKERCFG  /bulker/bulker.yaml
+ENV SHELL /bin/bash
 RUN mkdir /bulker
 RUN echo 'eval "$(bulker activate -e $@)"' > /bin/bulker-activate
 RUN chmod 755 /bin/bulker-activate

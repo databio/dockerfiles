@@ -1,0 +1,5 @@
+FROM databio/sciquill
+
+MAINTAINER Nathan Sheffield <nathan@code.databio.org>
+
+RUN apk add nodejs

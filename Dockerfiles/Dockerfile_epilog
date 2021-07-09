@@ -1,0 +1,15 @@
+FROM openjdk:16
+
+MAINTAINER Nathan Sheffield <nathan@code.databio.org>
+
+#RUN yum update && yum install git -y
+
+#RUN git clone --depth 1 git@github.com:databio/episcall.git
+#RUN cd episcall && sbt assembly
+
+ADD epilog/epilog /bin/epilog
+ADD epilog/episcall_v0.13.0.jar /episcall/target/scala-2.13/episcall_v0.13.0.jar
+
+
+ENV EPILOG="/episcall/target/scala-2.13/episcall_v0.13.0.jar"
+

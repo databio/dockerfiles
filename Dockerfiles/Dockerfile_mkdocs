@@ -1,4 +1,4 @@
-FROM nsheff/python3
+FROM python:3.9.1
 
 MAINTAINER Nathan Sheffield <nathan@code.databio.org>
 

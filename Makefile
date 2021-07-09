@@ -6,11 +6,15 @@ SHELL:=/bin/bash
 
 # choose docker namespace for images to build
 namespace=databio
+namespace2=ghcr.io_databio
 
 # Construct an array of images (and nocache targets) with available Dockerfiles
 IMAGES := $(shell ls Dockerfiles/Dockerfile_* | sed 's/Dockerfiles\/Dockerfile_//g')
 NOCACHE_TARGETS=$(addsuffix -nocache, $(IMAGES))
 TAG_TARGETS=$(addsuffix -tag, $(IMAGES))
+
+IMAGES1=$(addprefix $(namespace)_, $(IMAGES))
+IMAGES2=$(addprefix $(namespace2)_, $(IMAGES))
 
 # These Makefile targets create generic recipes following the build_image
 # functions above for each entry in the IMAGES list. This will automatically
@@ -22,8 +26,14 @@ TAG_TARGETS=$(addsuffix -tag, $(IMAGES))
 $(IMAGES):
 	./bin/build.sh $(namespace) $@
 
+$(IMAGES1):
+	./bin/build.sh $(namespace) $@
+
 $(NOCACHE_TARGETS):
 	./bin/build_nocache.sh $(namespace) $@
 
 $(TAG_TARGETS):
 	./bin/tag.sh $(namespace) $@
+
+$(IMAGES2):
+	./bin/build.sh $(subst "_" , "/" , $(namespace2)) $@

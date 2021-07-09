@@ -1,0 +1,41 @@
+#!/bin/bash
+
+################################################################
+# Preconditions test
+################################################################
+if [ -z "$EPILOG" ]; then
+    echo "The EPILOG variable is not set"
+    exit 127
+fi
+if ! [[ -f "$EPILOG" ]]; then
+    echo "EPILOG variable's value isn't a file: ${EPILOG}"
+    exit 127
+fi
+
+################################################################
+# Main
+################################################################
+runProg="run"
+indexProg="index"
+args=("$@")
+
+if ! [[ "${args[1]}" == "--" ]]; then
+    echo "Usage: epilog [subcommand] -- <optargs>"
+    exit 1
+fi
+
+progName=("${args[0]}")
+
+if [ "${progName}" == "${indexProg}" ]; then
+    progPath="episcall.IndexSites"
+elif [ "${progName}" == "${runProg}" ]; then
+    progPath="episcall.epiallele.Analyze"
+else
+    echo "Illegal program choice (${progName}); choose either ${runProg} or ${indexProg}"
+    exit 127
+fi
+
+cmd="java -cp ${EPILOG} ${progPath} ${args[@]:2}"
+echo "Running: ${cmd}"
+eval $cmd
+

@@ -1,0 +1,5 @@
+FROM databio/bulker
+
+MAINTAINER Nathan Sheffield <nathan@code.databio.org>
+
+RUN apt update && apt install -y npm nodejs

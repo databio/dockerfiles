@@ -1,0 +1,22 @@
+FROM databio/bulker
+
+MAINTAINER Nathan Sheffield <nathan@code.databio.org>
+
+WORKDIR /root
+
+RUN git clone https://github.com/databio/pepatac
+
+RUN pip install looper
+
+RUN pip install refgenie
+
+RUN bulker load databio/pepatac
+
+ENV REFGENIE /root/refgenie.yaml
+ENV BULKERCFG /root/bulker.yaml
+
+RUN refgenie init -c /root/refgenie.yaml
+
+RUN refgenie pull rCRSd/fasta
+RUN refgenie pull rCRSd/bowtie2_index
+
