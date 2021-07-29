@@ -1,5 +1,5 @@
-# This Makefile just makes it convenient to build the included docker images
-# Dockerfile is named: Dockerfile_IMAGE
+# This Makefile provides convenience targets to build the included docker images
+# Dockerfile is named: Dockerfiles/Dockerfile_IMAGE
 # image is named: namespace/IMAGE
 
 SHELL:=/bin/bash
