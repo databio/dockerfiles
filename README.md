@@ -25,13 +25,9 @@ You can also symlink the `latest` to a particular version. In that case, it's ti
 
 ## Version tagging details
 
-- For some images, use `make {namespace}/{image}-tag` to auto-tag the version of the image. This only works if there is an `IMAGE.sh` script in [tags](/tags), which should use the container to return the image of software you installed.
+We often want to tag an image with the version of the software it contains. In the latest version of this repository, this is now handled by creating separate Dockerfiles, with the filename corresponding to the tag. But in the past, I wanted to do this in an automated way, and have only a single Dockerfile. This way, when you build a new image, it can be automatically tagged with the version it just built. This way, the tags are guaranteed to be kept in sync with the self-reported version. The way I did that is through scripts in the `tags` folder, one for each image that can be tagged. This script will run the `latest` image, which is the one just built, and use it to print out the version of itself, and then pass this to the `docker tag` to auto-tag the image with the correct version of software it contains. The only thing it requires is the code for how the software prints out its version, which is kept in `tags/{image}.sh`. Then, the magic of the tagging happens in `bin/tag.sh`. So, to enable a new Dockerfile to be automatically tagged, just follow the examples in `tags/{image.sh}` and make one for the software in the new image. Tag it using the `make {namespace}/{image}-tag` target. 
 
-We often want to tag an image with the version of the software it contains. It's nice to automate this, so that when you build a new image, it can be automatically tagged with the version it just built. This way, the tags are guaranteed to be kept in sync with the self-reported version.
-
-The way I handle this is through scripts in the `tags` folder, one for each image that can be tagged. This script will run the `latest` image, which is the one just built, and use it to print out the version of itself, and then pass this to the `docker tag` to auto-tag the image with the correct version of software it contains. The only thing it requires is the code for how the software prints out its version, which is kept in `tags/{image}.sh`. Then, the magic of the tagging happens in `bin/tag.sh`.
-
-So, to enable a new Dockerfile to be automatically tagged, just follow the examples in `tags/{image.sh}` and make one for the software in the new image. Tag it using the `make {namespace}/{image}-tag` target.
+However, I've since changed my mind. I don't think this is a good idea because it doesn't give you control to build older versions, and to keep the Dockerfiles separate. I now prefer making it explicit. If you don't care to version control a particular image, just name the Dockerfile `latest` and don't worry about it. But this way, you have the power to version control the Dockerfiles in case it's useful.
 
 ## Some useful commands for using docker:
 
