@@ -1,8 +1,8 @@
 # Dockerfiles
 
-This repository contains Dockerfiles for the Sheffield lab. It uses a [Makefile](Makefile) system to make it easy to build these images.
+This repository contains Dockerfiles for the [Sheffield lab](https://databio.org). It uses a [Makefile](Makefile) to automate building images.
 
-### Pulling images
+## Pulling images
 
 If you just want to *use* the dockerfiles, you can just pull the images from dockerhub. Built images are (mostly) hosted at [https://hub.docker.com/u/databio](https://hub.docker.com/u/databio). Pull from dockerhub in the usual way:
 

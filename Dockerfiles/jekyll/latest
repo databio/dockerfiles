@@ -1,0 +1,20 @@
+# Dockerfile for Jekyll environment
+FROM ubuntu:18.04
+
+MAINTAINER Nathan Sheffield <nathan@code.databio.org>
+RUN apt-get update && apt-get install -y sudo build-essential
+# jekyll2 *but not jekyll3* also requires python2
+
+RUN sudo apt-get install -y ruby ruby-dev make nodejs
+RUN gem install jekyll jekyll-sitemap octopress jekyll-gist jekyll-redirect-from
+RUN gem install redcarpet 
+RUN gem install require jekyll-feed jekyll-seo-tag bundler public_suffix
+RUN gem install jekyll-redirect-from
+RUN sudo apt-get install -y zlib1g-dev
+RUN gem install github-pages
+RUN gem install minimal
+RUN gem install jekyll-github-metadata
+RUN sudo apt-get install -y git
+RUN gem update --system
+
+EXPOSE 4000
