@@ -1,39 +1,48 @@
-# This Makefile just makes it convenient to build the included docker images
-# Dockerfile is named: Dockerfile_IMAGE
-# image is named: namespace/IMAGE
+# This Makefile makes it convenient to build included images
+# Dockerfile must be named: Dockerfiles/Dockerfile_IMAGE
+# Built image will be named: namespace/IMAGE
 
 SHELL:=/bin/bash
 
-# choose docker namespace for images to build
+# Choose docker namespaces for images to build
+# You can choose which namespace to use by specifying which target to build
 namespace=databio
-namespace2=ghcr.io_databio
+namespace2=ghcr.io
 
-# Construct an array of images (and nocache targets) with available Dockerfiles
+# Construct an array of images for Dockerfiles
 IMAGES := $(shell ls Dockerfiles/Dockerfile_* | sed 's/Dockerfiles\/Dockerfile_//g')
-NOCACHE_TARGETS=$(addsuffix -nocache, $(IMAGES))
-TAG_TARGETS=$(addsuffix -tag, $(IMAGES))
 
-IMAGES1=$(addprefix $(namespace)_, $(IMAGES))
-IMAGES2=$(addprefix $(namespace2)_, $(IMAGES))
+# Now build the actual targets:
+#  IMAGES: will be the generic docker build
+#  NOCACHE: will add a -nocache flag to build
+#  TAG: will tag the image. Requires instructions shell script.
+IMAGES1=$(addprefix $(namespace)/, $(IMAGES))
+NOCACHE_TARGETS1=$(addsuffix -nocache, $(IMAGES1))
+TAG_TARGETS1=$(addsuffix -tag, $(IMAGES1))
 
-# These Makefile targets create generic recipes following the build_image
-# functions above for each entry in the IMAGES list. This will automatically
-# create a target for each Dockerfile, and a second target for each Dockerfile
-# with "-nocache" added. if you call that nocache recipe, it will call the
-# build_image_nocache function instead, which just adds the --nocache to the
-# docker build call.
+IMAGES2=$(addprefix $(namespace2)/, $(IMAGES))
+NOCACHE_TARGETS2=$(addsuffix -nocache, $(IMAGES2))
+TAG_TARGETS2=$(addsuffix -tag, $(IMAGES2))
 
-$(IMAGES):
-	./bin/build.sh $(namespace) $@
+# Most of the heavy lifting happens in the /bin/build... scripts. 
+# These targets below will automatically construct a different
+# Makefile target for each image, in each namespace, with 
+# regular build, nocache, and tag target for each. 
 
 $(IMAGES1):
-	./bin/build.sh $(namespace) $@
+	./bin/build.sh $(subst /, ,$@)
 
-$(NOCACHE_TARGETS):
-	./bin/build_nocache.sh $(namespace) $@
+$(NOCACHE_TARGETS1):
+	./bin/build_nocache.sh $(subst /, ,$@)
 
-$(TAG_TARGETS):
-	./bin/tag.sh $(namespace) $@
+$(TAG_TARGETS1):
+	./bin/tag.sh $(subst /, ,$@)
 
 $(IMAGES2):
-	./bin/build.sh $(subst "_" , "/" , $(namespace2)) $@
+	./bin/build.sh $(subst /, ,$@)
+
+$(NOCACHE_TARGETS2):
+	./bin/build_nocache.sh $(subst /, ,$@)
+
+$(TAG_TARGETS2):
+	./bin/tag.sh $(subst /, ,$@)

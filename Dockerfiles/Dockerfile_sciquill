@@ -35,6 +35,7 @@ RUN tlmgr install courier
 RUN tlmgr install bold-extra
 RUN tlmgr install cm-mf-extra-bold
 RUN tlmgr install palatino
+RUN tlmgr install multicol
 
 # Tabs
 RUN tlmgr install tabto-ltx
@@ -50,5 +51,12 @@ ADD includes/longtable.diff /opt/texlive/texdir/texmf-dist/tex/latex/tools/longt
 RUN patch /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.sty < /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.diff
 
 RUN tlmgr install tabu
+
+RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
+RUN echo "test3"
+RUN pip install https://github.com/databio/markmeld/archive/refs/heads/master.zip
+
 
 ENTRYPOINT []
