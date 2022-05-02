@@ -4,25 +4,28 @@ This repository contains Dockerfiles for the Sheffield lab. It uses a [Makefile]
 
 ### Pulling images
 
-If you just want to *use* the dockerfiles, you can just pull the images from dockerhub. Built images are hosted at [https://hub.docker.com/u/databio](https://hub.docker.com/u/databio). Pull from dockerhub in the usual way:
+If you just want to *use* the dockerfiles, you can just pull the images from dockerhub. Built images are (mostly) hosted at [https://hub.docker.com/u/databio](https://hub.docker.com/u/databio). Pull from dockerhub in the usual way:
 
 ```
-docker pull databio/IMAGE
+docker pull databio/IMAGE:version
 ```
 
 ## Building images
 
-In this repo is a [Makefile](Makefile), which auto-generates targets for building each image. After cloning the repo, type `make` and use tab completion to see which images can be built. You first must choose the namespace you want to build the image in, then you can tab-complete to see the available images. You then have 3 options:
+In this repo is a [Makefile](Makefile), which auto-generates targets for building each image. After cloning the repo, type `make` and use tab completion to see which images can be built. You first must choose the registry and namespace you want to build the image in, then you can tab-complete to see the available images. You then have 3 options:
 
-- Use `make {namespace}/{image}` to build an image, *e.g.*`make databio/pandoc-nocache`
-- Use `make {namespace}/{image}-nocache` to re-build from scratch (without using caches). *e.g.* `make databio/pandoc-nocache`.
-- For some images, use `make {namespace}/{image}-tag` to auto-tag the version of the image. This only works if there is an `IMAGE.sh` script in [tags](/tags), which should use the container to return the image of software you installed.
+- Use `make {registry}/{namespace}/{image}/{tag}` to build an image, *e.g.*`make docker.io/databio/pandoc/latest`
+- Use `make {registry}/{namespace}/{image}/{tag}-nocache` to re-build from scratch (without using caches). *e.g.* `make docker.io/databio/pandoc/latest-nocache`.
 
 ## Adding an image
 
-To add a new image here, just add the a file called `Dockerfiles/Dockerfile_IMAGE`, where IMAGE is the name of the image the dockerfile will build. That's it; the Makefile will automatically generate the targets.
+To add a new image here, just add the Dockerfile file here, named `Dockerfiles/{image}/{tag}`, where `{image}` is the name of the image the dockerfile will build. That's it; the Makefile will automatically generate the targets. This system creates a *hierarchy of folders*, where each image is a folder, and inside the folder is a separate dockerfile for each version of that image. So, to add a new version of an existing tool, just create a new file in that tool's folder. The filename corresponds to the version/tag of the image.
+
+You can also symlink the `latest` to a particular version. In that case, it's times helpful to run the `make` command twice, once for the version and once with `/latest`. This doesn't duplicate the build, since it's cached, but has the affect of adding both a version tag, and a `latest` tag to the built image.
 
 ## Version tagging details
+
+- For some images, use `make {namespace}/{image}-tag` to auto-tag the version of the image. This only works if there is an `IMAGE.sh` script in [tags](/tags), which should use the container to return the image of software you installed.
 
 We often want to tag an image with the version of the software it contains. It's nice to automate this, so that when you build a new image, it can be automatically tagged with the version it just built. This way, the tags are guaranteed to be kept in sync with the self-reported version.
 
