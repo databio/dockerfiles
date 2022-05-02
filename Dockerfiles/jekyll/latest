@@ -1,5 +1,8 @@
 # Dockerfile for Jekyll environment
-FROM ubuntu:18.04
+FROM ubuntu:20.04
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG DEBCONF_NONINTERACTIVE_SEEN=true
 
 MAINTAINER Nathan Sheffield <nathan@code.databio.org>
 RUN apt-get update && apt-get install -y sudo build-essential
