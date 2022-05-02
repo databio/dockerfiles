@@ -6,23 +6,27 @@ SHELL:=/bin/bash
 
 # Choose docker namespaces for images to build
 # You can choose which namespace to use by specifying which target to build
-namespace=databio
-namespace2=ghcr.io
+# These are actually registry/namespace combinations
+namespace=docker.io/databio
+namespace2=ghcr.io/databio
 
 # Construct an array of images for Dockerfiles
 IMAGES := $(shell ls Dockerfiles/Dockerfile_* | sed 's/Dockerfiles\/Dockerfile_//g')
+IMAGES_WITH_VERSIONS := $(shell ls Dockerfiles/*/* | sed 's/Dockerfiles\///g')
 
 # Now build the actual targets:
 #  IMAGES: will be the generic docker build
 #  NOCACHE: will add a -nocache flag to build
 #  TAG: will tag the image. Requires instructions shell script.
-IMAGES1=$(addprefix $(namespace)/, $(IMAGES))
+IMAGES1=$(addprefix $(namespace)/, $(IMAGES_WITH_VERSIONS))
 NOCACHE_TARGETS1=$(addsuffix -nocache, $(IMAGES1))
 TAG_TARGETS1=$(addsuffix -tag, $(IMAGES1))
 
-IMAGES2=$(addprefix $(namespace2)/, $(IMAGES))
+IMAGES2=$(addprefix $(namespace2)/, $(IMAGES_WITH_VERSIONS))
 NOCACHE_TARGETS2=$(addsuffix -nocache, $(IMAGES2))
 TAG_TARGETS2=$(addsuffix -tag, $(IMAGES2))
+
+
 
 # Most of the heavy lifting happens in the /bin/build... scripts. 
 # These targets below will automatically construct a different
@@ -46,3 +50,4 @@ $(NOCACHE_TARGETS2):
 
 $(TAG_TARGETS2):
 	./bin/tag.sh $(subst /, ,$@)
+

@@ -2,17 +2,17 @@
 
 # This script just builds a dockerfile with -nocache
 
-namespace=$1
-image=${2%-nocache}
+registry=$1
+namespace=$2
+image=$3
+tag=${4%-nocache}
 
 echo "Building image..."
+echo "Registry: ${registry}"
 echo "Namespace: ${namespace}"
 echo "Image: ${image}"
+echo "Tag: ${tag}"
 
 time docker build --no-cache -t ${namespace}/${image} \
-  -f Dockerfiles/Dockerfile_${image} . | tee logs/log_$image.txt
+  -f Dockerfiles/${image}/${tag} . | tee logs/log_$image_$tag.txt
 
-if [ -f "versions/${image}.sh" ]; then
-  v=`./versions/${image}.sh`
-  docker tag ${namespace}/$image ${namespace}/$image:$v
-fi

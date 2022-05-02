@@ -1,4 +1,4 @@
-FROM pandoc/latex:2.13
+FROM pandoc/latex:edge
 
 # To find which packages contain a given .sty file:
 # tlmgr search --global --file "authblk.sty"
