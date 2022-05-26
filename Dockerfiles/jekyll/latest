@@ -22,6 +22,8 @@ RUN gem install minimal
 RUN gem install jekyll-github-metadata
 RUN gem install kramdown
 RUN gem install rexml  # required by kramdown
+RUN gem install public_suffix
 RUN gem update --system
+
 
 EXPOSE 4000
