@@ -3,6 +3,6 @@ FROM ubuntu:20.04
 MAINTAINER Nathan LeRoy <nleroy@virginia.edu>
 
 RUN apt-get update
-RUN apt-get -y install wget gzip bzip2-devel
+RUN apt-get -y install wget gzip bzip2
 
 RUN bash -c "$(curl -L https://basemount.basespace.illumina.com/install)"
