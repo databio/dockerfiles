@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-MAINTAINER Nathan LeRoy <nleroy@virginia.edu>
+LABEL maintainer="Nathan LeRoy <nleroy@virginia.edu>""
 
 RUN apt-get update \
     && apt-get -y install wget gzip bzip2 curl
