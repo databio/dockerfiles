@@ -2,7 +2,13 @@ FROM ubuntu:20.04
 
 MAINTAINER Nathan LeRoy <nleroy@virginia.edu>
 
-RUN apt-get update
-RUN apt-get -y install wget gzip bzip2
+RUN apt-get update \
+    && apt-get -y install wget gzip bzip2 curl
 
-RUN bash -c "$(curl -L https://basemount.basespace.illumina.com/install)"
+RUN sh -c 'echo "# Packages by Illumina BaseSpace" | tee /etc/apt/sources.list.d/basemount.list'
+RUN sh -c 'echo "deb [arch=amd64 trusted=yes target=Packages] https://basemount-prod.s3.amazonaws.com/ ubuntu main" | tee -a /etc/apt/sources.list.d/basemount.list'
+
+RUN rm -f /etc/apt/sources.list.d/basespacefs.list
+
+RUN apt-get update
+RUN apt-get -y install basemount 
