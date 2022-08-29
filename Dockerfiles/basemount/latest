@@ -1,0 +1,8 @@
+FROM ubuntu:20.04
+
+LABEL maintainer="Nathan LeRoy <nleroy@virginia.edu>"
+
+RUN apt-get update \
+    && apt-get -y install wget gzip bzip2 curl
+
+RUN bash -c "$(curl -L https://basemount.basespace.illumina.com/install)"
