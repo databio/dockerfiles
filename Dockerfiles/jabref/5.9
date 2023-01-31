@@ -1,0 +1,27 @@
+FROM ubuntu:20.04
+MAINTAINER Nathan Sheffield <nathan@code.databio.org>
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/New_York
+
+################################################################################
+# Some of these dependencies will be already installed by the parent images;
+# But just to make sure, run these installs here:
+
+# Updating is required before any apt-gets
+RUN apt-get update && \
+	apt-get install -y --fix-missing \
+	wget \
+	xdg-utils \
+	evince \
+	openjdk-8-jdk \
+	openjfx
+
+
+################################################################################
+# Install JabRef
+
+RUN wget https://github.com/JabRef/jabref/releases/download/v5.9/JabRef-5.9-portable_linux.tar.gz
+
+RUN tar -xf JabRef-5.9-portable_linux.tar.gz
+ENV PATH "/JabRef/bin:${PATH}"
