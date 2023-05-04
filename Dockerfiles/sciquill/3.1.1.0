@@ -1,0 +1,65 @@
+FROM pandoc/latex:edge
+
+# To find which packages contain a given .sty file:
+# tlmgr search --global --file "authblk.sty"
+# or, for a font file:
+# tlmgr search --global --file "pplr7t.tfm"
+
+# This will point to the latest version of texlive.
+# You can adopt a historic version as well, see: https://www.tug.org/historic/
+
+RUN tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet
+RUN tlmgr update --self
+
+# Latex packages
+
+RUN tlmgr install algorithms
+RUN tlmgr install algorithmicx
+RUN tlmgr install wrapfig
+RUN tlmgr install dblfloatfix
+RUN tlmgr install ifsym
+RUN tlmgr install preprint
+RUN tlmgr install sttools
+RUN tlmgr install mdframed
+RUN tlmgr install zref
+RUN tlmgr install needspace
+RUN tlmgr install titlesec
+RUN tlmgr install enumitem
+RUN tlmgr install titling
+RUN tlmgr install csvsimple
+RUN tlmgr install changepage
+
+# Fonts
+
+RUN tlmgr install charter
+RUN tlmgr install helvetic
+RUN tlmgr install ly1
+RUN tlmgr install courier
+RUN tlmgr install bold-extra
+RUN tlmgr install cm-mf-extra-bold
+RUN tlmgr install palatino
+
+# Tabs
+RUN tlmgr install tabto-ltx
+
+# For images
+
+RUN tlmgr install transparent
+RUN apk add patch
+
+# Patch longtable to work with pandoc
+
+#ADD includes/longtable.diff /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.diff
+#RUN patch /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.sty < /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.diff
+
+RUN tlmgr install tabu
+
+RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
+RUN echo "test3"
+RUN pip install https://github.com/databio/markmeld/archive/refs/heads/master.zip
+
+
+RUN tlmgr install pdfpages
+ENTRYPOINT []
