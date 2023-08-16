@@ -13,6 +13,6 @@ echo "Namespace: ${namespace}"
 echo "Image: ${image}"
 echo "Tag: ${tag}"
 
-time docker build --no-cache -t ${namespace}/${image} \
+time docker build --no-cache -t ${namespace}/${image}:${tag} \
   -f Dockerfiles/${image}/${tag} . | tee logs/log_$image_$tag.txt
 
