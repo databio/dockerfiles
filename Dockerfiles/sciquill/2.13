@@ -1,11 +1,15 @@
-FROM pandoc/latex:edge
+FROM pandoc/latex:2.13
 
 # To find which packages contain a given .sty file:
 # tlmgr search --global --file "authblk.sty"
 # or, for a font file:
 # tlmgr search --global --file "pplr7t.tfm"
 
-RUN tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet
+# This command will set the remote repo to the *latest* texlive;
+# it will therefore not work once this image's tlmgr gets outdated.
+# If you *don't* update the remote repo, it appears to know to use an old remote
+# RUN tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet
+RUN tlmgr option repository ftp://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2021/tlnet-final
 RUN tlmgr update --self
 
 # Latex packages
@@ -35,6 +39,8 @@ RUN tlmgr install courier
 RUN tlmgr install bold-extra
 RUN tlmgr install cm-mf-extra-bold
 RUN tlmgr install palatino
+# RUN tlmgr install multicol  # this doesn't exist.
+
 
 # Tabs
 RUN tlmgr install tabto-ltx
@@ -45,14 +51,11 @@ RUN tlmgr install transparent
 RUN apk add patch
 
 # Patch longtable to work with pandoc
-# This doesn't seem to work for pandoc 3
-# ADD includes/longtable.diff /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.diff
-# RUN patch /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.sty < /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.diff
+
+ADD includes/longtable.diff /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.diff
+RUN patch /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.sty < /opt/texlive/texdir/texmf-dist/tex/latex/tools/longtable.diff
 
 RUN tlmgr install tabu
-RUN tlmgr install pdfpages
-RUN tlmgr install ctable
-
 
 RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
 RUN python3 -m ensurepip
@@ -60,5 +63,9 @@ RUN pip3 install --no-cache --upgrade pip setuptools
 RUN echo "test3"
 RUN pip install https://github.com/databio/markmeld/archive/refs/heads/master.zip
 
+RUN apk upgrade --update && apk add --no-cache --update bash
+# RUN apk add texlive-full  #wrapfig ???
+
+RUN tlmgr install multirow  # used in bedspace paper
 
 ENTRYPOINT []
