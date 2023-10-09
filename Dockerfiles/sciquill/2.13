@@ -5,7 +5,7 @@ FROM pandoc/latex:2.13
 # or, for a font file:
 # tlmgr search --global --file "pplr7t.tfm"
 
-RUN tlmgr option repository https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2021/tlnet-final/
+RUN tlmgr option repository https://pi.kwarc.info/historic/systems/texlive/2021/tlnet-final/
 RUN tlmgr update --self
 
 # Latex packages
