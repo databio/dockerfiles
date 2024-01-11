@@ -5,11 +5,14 @@ FROM pandoc/latex:2.13
 # or, for a font file:
 # tlmgr search --global --file "pplr7t.tfm"
 
+
 # This command will set the remote repo to the *latest* texlive;
 # it will therefore not work once this image's tlmgr gets outdated.
 # If you *don't* update the remote repo, it appears to know to use an old remote
 # RUN tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet
 RUN tlmgr option repository ftp://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2021/tlnet-final
+# Alternative URL? https://pi.kwarc.info/historic/systems/texlive/2021/tlnet-final/
+
 RUN tlmgr update --self
 
 # Latex packages
