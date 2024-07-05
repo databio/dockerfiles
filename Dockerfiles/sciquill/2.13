@@ -32,6 +32,7 @@ RUN tlmgr install enumitem
 RUN tlmgr install titling
 RUN tlmgr install csvsimple
 RUN tlmgr install changepage
+RUN tlmgr install multirow  # used in bedspace paper
 
 # Fonts
 
@@ -69,6 +70,6 @@ RUN pip install https://github.com/databio/markmeld/archive/refs/heads/master.zi
 RUN apk upgrade --update && apk add --no-cache --update bash
 # RUN apk add texlive-full  #wrapfig ???
 
-RUN tlmgr install multirow  # used in bedspace paper
+
 
 ENTRYPOINT []
