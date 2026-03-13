@@ -1,0 +1,18 @@
+FROM ubuntu:22.04
+MAINTAINER Nathan Sheffield <nathan@code.databio.org>
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=America/New_York
+
+RUN apt-get update && \
+	apt-get install -y --fix-missing \
+	wget \
+	xdg-utils \
+	evince \
+	openjdk-8-jdk \
+	openjfx
+
+RUN wget https://github.com/JabRef/jabref/releases/download/v5.15/JabRef-5.15-portable_linux.tar.gz
+
+RUN tar -xf JabRef-5.15-portable_linux.tar.gz
+ENV PATH "/JabRef/bin:${PATH}"
