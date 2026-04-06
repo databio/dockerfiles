@@ -5,14 +5,14 @@ FROM pandoc/latex:3.9
 # or, for a font file:
 # tlmgr search --global --file "pplr7t.tfm"
 
-RUN tlmgr option repository http://mirror.ctan.org/systems/texlive/tlnet
+RUN tlmgr option repository https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/tlnet-final
 RUN tlmgr update --self
 
 # Latex packages
 RUN tlmgr install \
     algorithms algorithmicx wrapfig dblfloatfix ifsym preprint \
     sttools mdframed zref needspace titlesec enumitem titling \
-    csvsimple changepage multirow \
+    csvsimple changepage multirow extsizes \
     xkeyval xltxtra realscripts
 
 # Fonts
