@@ -1,0 +1,44 @@
+# Dockerfile for R for pipelines.
+# This based on a bioconductor container, with packages included to run
+# lab pipelines.
+#
+# Git clones are last so cached builds only re-run those steps.
+# Pass --build-arg CACHEBUST=$(date +%s) to force re-clone.
+
+FROM bioconductor/bioconductor_docker:RELEASE_3_16
+
+LABEL maintainer="Nathan Sheffield <nathan@code.databio.org>"
+
+# Install required Bioconductor packages
+RUN Rscript -e 'install.packages("devtools")'
+RUN Rscript -e 'install.packages("gplots")'
+RUN Rscript -e 'install.packages("optigrab")'
+RUN Rscript -e 'install.packages("pepr")'
+RUN Rscript -e 'install.packages("argparser")'
+RUN Rscript -e 'install.packages("R.utils")'
+RUN Rscript -e 'install.packages("BiocManager")'
+RUN Rscript -e 'BiocManager::install("GenomicRanges")'
+RUN Rscript -e 'BiocManager::install("Biostrings")'
+RUN Rscript -e 'BiocManager::install("BSgenome")'
+RUN Rscript -e 'BiocManager::install("GenomicFeatures")'
+RUN Rscript -e 'BiocManager::install("ensembldb")'
+RUN Rscript -e 'BiocManager::install("GenomicDistributions")'
+RUN Rscript -e 'BiocManager::install("GenomicDistributionsData")'
+
+# Required for singularity to access R packages not in /library/ alone
+RUN chmod -R a+w /usr/local/lib/R/site-library/ /usr/local/lib/R/library/
+ENV R_LIBS_USER=/usr/local/lib/R/site-library/
+
+# Bust cache for git clones: pass --build-arg CACHEBUST=$(date +%s)
+# Override branch: --build-arg PEPATAC_BRANCH=dev
+ARG CACHEBUST=0
+ARG PEPPRO_BRANCH=master
+ARG PEPATAC_BRANCH=master
+
+RUN git clone -b $PEPPRO_BRANCH https://github.com/databio/peppro.git
+RUN R CMD INSTALL peppro/PEPPROr/
+RUN rm -rf peppro
+
+RUN git clone -b $PEPATAC_BRANCH https://github.com/databio/pepatac.git
+RUN R CMD INSTALL pepatac/PEPATACr/
+RUN rm -rf pepatac
