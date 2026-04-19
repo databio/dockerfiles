@@ -5,7 +5,14 @@ FROM pandoc/latex:3.9
 # or, for a font file:
 # tlmgr search --global --file "pplr7t.tfm"
 
-RUN tlmgr option repository https://ftp.math.utah.edu/pub/tex/historic/systems/texlive/2025/tlnet-final
+# TeX Live repository. Using the live tlnet tree tracks whatever version the
+# pandoc/latex base image currently ships (as of this commit, TL2026). Content
+# floats over time, so this is not fully reproducible — once TL2026's
+# `tlnet-final` snapshot is published (typically ~a year after release), pin
+# to that snapshot URL instead.
+RUN tlmgr option repository https://mirrors.rit.edu/CTAN/systems/texlive/tlnet
+# Backup / reproducible pin (switch back once TL2026 tlnet-final exists):
+# RUN tlmgr option repository https://texlive.info/historic/systems/texlive/2026/tlnet-final
 RUN tlmgr update --self
 
 # Latex packages
