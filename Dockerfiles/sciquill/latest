@@ -24,7 +24,9 @@ RUN tlmgr install \
 
 # Fonts
 RUN tlmgr install \
-    charter helvetic ly1 courier bold-extra cm-mf-extra-bold palatino
+    charter helvetic ly1 courier bold-extra cm-mf-extra-bold palatino \
+    times psnfss newtx txfonts mathpazo tex-gyre tex-gyre-math \
+    xpatch xstring kastrup fontaxes
 
 # Tabs, images, tables, and layout
 RUN tlmgr install \
