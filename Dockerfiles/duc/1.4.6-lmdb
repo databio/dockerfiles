@@ -1,0 +1,141 @@
+# duc 1.4.6 built from source against the LMDB backend.
+#
+# WHY THIS EXISTS, AND WHY IT IS NOT `apt-get install duc`
+# -------------------------------------------------------
+# Dockerfiles/duc/latest is `apt-get install duc` on ubuntu:latest, which gives
+# duc 1.4.3 linked against TOKYO CABINET. Two properties of that combination
+# broke the brickyard janitor on /project/shefflab:
+#
+#  1. WRITE DEGENERATION. duc has no delete operation anywhere in its codebase
+#     (src/libduc/db.h exposes only db_open/db_close/db_put/db_get), and
+#     directory records are keyed "%jx/%jx" on dev/ino. A removed directory, or
+#     one whose inode changed, leaves its record behind forever, and on GPFS/Weka
+#     inode numbers are not aggressively reused. The db retired 2026-07-23 held
+#     3,021,485 directory records for 315,963 live directories -- 9.6x garbage,
+#     4.18 GB. Tokyo cabinet's random reads per index grew 45x as the db grew
+#     with no plateau, until every write hung forever while reads stayed instant.
+#     LMDB's measured write time was FLAT across the same growth (1.33s -> 1.42s).
+#
+#  2. NO LOCKING AT ALL. duc opens tokyocabinet with HDBONOLCK -- file locking
+#     explicitly disabled. Three concurrent `duc index` runs into one db all
+#     exited 0 and left a db that `duc info` reported as containing ZERO trees.
+#     The LMDB backend creates a `<db>-lock` file and survives the same test.
+#
+# Upstream says as much in INSTALL: "Tokyo Cabinet is not very stable and can
+# create corrupt databases when interrupting the indexing. If this is a problem
+# for you, choose a different db backend."
+#
+# 1.4.6 rather than 1.4.3 also picks up e4eca4c (tcbdbtune tuning, 1.4.5) and the
+# rest of the 1.4.4-1.4.6 fixes. It is deliberately NOT master: master is
+# 1.5.0-rc1, which switches the default backend to tkrzw, changes the on-disk
+# record struct for topN/histogram support, and is unreleased.
+#
+# NOTE ON THE LMDB TRADEOFF: db-lmdb.c begins one write transaction in db_open()
+# and commits it in db_close(), so an index killed part-way makes ZERO progress
+# rather than partial progress. That is the intended behaviour here -- partial
+# progress is exactly what corrupted the tokyocabinet db -- but it means a
+# per-brick timeout must be generous enough to let a brick finish, or that brick
+# never advances at all.
+#
+# THE ONE PATCH THIS IMAGE CARRIES: includes/duc-lmdb-mapsize.diff.
+# Upstream db-lmdb.c hardcodes a 256 GB LMDB map size on 64-bit. LMDB reserves
+# that as VIRTUAL address space at open time, for READS as well as writes, so on
+# any host with RLIMIT_AS below it every duc invocation dies with "Cannot
+# allocate memory" / "unsupported DB type unknown". MEASURED on the Rivanna login
+# nodes: `ulimit -H -v` is 50000000 KB (47.7 GB) and cannot be raised, so
+# `duc info`, `duc ls` and `duc xml` all failed there while working fine on
+# compute nodes (RLIMIT_AS unlimited). That would have silently removed the
+# ability to inspect duc.db by hand -- which is how every duc problem so far has
+# been diagnosed. The patch drops the default to 32 GB (~10x the projected db
+# size) and makes it overridable with DUC_LMDB_MAPSIZE_GB.
+#
+# Build:  make docker.io/databio/duc/1.4.6-lmdb && docker push databio/duc:1.4.6-lmdb
+# Verify: docker run --rm databio/duc:1.4.6-lmdb duc --version
+#         -> "duc version: 1.4.6 / options: cairo x11 ui lmdb"
+
+FROM ubuntu:24.04 AS builder
+
+# 6f9b6c4a3d5b74afb150ddf3e64207f7685f5470 is tag 1.4.6. Pinned to the commit,
+# not the tag, because tags are mutable.
+ARG DUC_COMMIT=6f9b6c4a3d5b74afb150ddf3e64207f7685f5470
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        autoconf \
+        automake \
+        build-essential \
+        ca-certificates \
+        git \
+        libcairo2-dev \
+        liblmdb-dev \
+        libncursesw5-dev \
+        libpango1.0-dev \
+        libtool \
+        libx11-dev \
+        patch \
+        pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+RUN git clone https://github.com/zevv/duc.git . \
+    && git checkout "${DUC_COMMIT}" \
+    && git rev-parse HEAD
+
+# `patch` without --fuzz: if upstream ever moves under this, the build must FAIL
+# rather than quietly produce a 256 GB-mapsize binary that works on compute nodes
+# and dies on login nodes.
+COPY includes/duc-lmdb-mapsize.diff /tmp/duc-lmdb-mapsize.diff
+RUN patch -p1 --fuzz=0 < /tmp/duc-lmdb-mapsize.diff \
+    && grep -q 'DUC_LMDB_MAPSIZE_GB' src/libduc/db-lmdb.c
+
+# cairo/x11/ui are kept ENABLED so this image stays a drop-in superset of
+# databio/duc:latest, which reports "cairo x11 ui tokyocabinet". Nothing in the
+# brickyard pipeline uses `duc graph`/`duc gui`, but the lab crate exposes duc
+# with `docker_args: -it` for interactive use and dropping them would be a
+# silent capability regression.
+RUN autoreconf -i \
+    && ./configure --with-db-backend=lmdb --prefix=/usr/local \
+    && make -j"$(nproc)" \
+    && make install \
+    && strip /usr/local/bin/duc
+
+# Fail the BUILD, not the deployment, if the backend is not what was asked for.
+# ./configure will happily fall back and this is the only cheap place to catch it.
+RUN /usr/local/bin/duc --version \
+    && /usr/local/bin/duc --version 2>&1 | grep -q 'lmdb' \
+    && /usr/local/bin/duc --version 2>&1 | grep -q '1\.4\.6'
+
+# Reproduce the Rivanna login node -- RLIMIT_AS 50000000 KB, hard -- and prove a
+# full write-then-read cycle works under it. This is the assertion that the
+# mapsize patch actually took effect in the compiled binary; grepping the source
+# only proves the patch applied, not that it changed behaviour. An unpatched
+# build fails this step with "Cannot allocate memory".
+RUN bash -c 'ulimit -S -v 50000000 && ulimit -H -v 50000000 && \
+    /usr/local/bin/duc index /usr/local --database /tmp/mapsize-check.db && \
+    /usr/local/bin/duc info --database /tmp/mapsize-check.db | grep -q /usr/local && \
+    /usr/local/bin/duc xml /usr/local --database /tmp/mapsize-check.db | grep -q "<duc root=" && \
+    echo "OK: duc opens LMDB under a 47.7 GB RLIMIT_AS"' \
+    && rm -f /tmp/mapsize-check.db /tmp/mapsize-check.db-lock
+
+
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libcairo2 \
+        liblmdb0 \
+        libncursesw6 \
+        libpango-1.0-0 \
+        libpangocairo-1.0-0 \
+        libtinfo6 \
+        libx11-6 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /usr/local/bin/duc /usr/local/bin/duc
+
+RUN duc --version
+
+ENTRYPOINT []
+CMD ["duc"]

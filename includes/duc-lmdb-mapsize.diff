@@ -1,0 +1,40 @@
+diff --git a/src/libduc/db-lmdb.c b/src/libduc/db-lmdb.c
+index ebdb720..8fc494e 100644
+--- a/src/libduc/db-lmdb.c
++++ b/src/libduc/db-lmdb.c
+@@ -38,10 +38,33 @@ struct db *db_open(const char *path_db, int flags, duc_errno *e)
+ 	}
+ 
+ 	/* On 32 bit machines the maximum db size is limited to 1GB, for 64 bit
+-	 * machines we increase to 256 GB */
++	 * machines we increase to DUC_LMDB_MAPSIZE_GB (default 32 GB).
++	 *
++	 * LMDB reserves the whole map size as VIRTUAL address space at open time,
++	 * for READS as well as writes. Upstream's 256 GB default therefore makes
++	 * duc unusable -- including `duc info`/`ls`/`xml` -- anywhere RLIMIT_AS is
++	 * set below that. On the UVA Rivanna login nodes the HARD limit is
++	 * 50000000 KB (47.7 GB) and cannot be raised, so every duc invocation
++	 * failed with "Cannot allocate memory" / "unsupported DB type unknown".
++	 * Compute nodes have RLIMIT_AS unlimited, so this only bit interactive use
++	 * -- which is exactly where duc gets used to diagnose things.
++	 *
++	 * 32 GB is ~10x the projected steady-state size of the brickyard db and
++	 * still leaves ~15 GB of address space under that hard limit. Override
++	 * with DUC_LMDB_MAPSIZE_GB if a db ever outgrows it (LMDB reports
++	 * MDB_MAP_FULL rather than corrupting anything). */
+ 
+ 	size_t map_size = 1024u * 1024u * 1024u;
+-	if(sizeof(size_t) == 8) map_size *= 256u;
++	if(sizeof(size_t) == 8) {
++		unsigned long gb = 32;
++		const char *env_gb = getenv("DUC_LMDB_MAPSIZE_GB");
++		if(env_gb && *env_gb) {
++			char *end = NULL;
++			unsigned long v = strtoul(env_gb, &end, 10);
++			if(end && *end == '\0' && v > 0) gb = v;
++		}
++		map_size *= (size_t)gb;
++	}
+ 
+ 	db = duc_malloc(sizeof *db);
+ 
