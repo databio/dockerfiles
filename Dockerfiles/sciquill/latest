@@ -36,6 +36,10 @@ RUN tlmgr install \
 # with its own self-update so the cached layers above are reused.
 RUN tlmgr update --self && tlmgr install plex
 
+# MyNimbus (Nimbus Sans plus Semi60/Semi80 weights), prebuilt for pdflatex
+COPY includes/mynimbus-texmf /opt/texlive/texmf-local/
+RUN mktexlsr /opt/texlive/texmf-local
+
 # System tools
 RUN apk add --update --no-cache python3 bash && ln -sf python3 /usr/bin/python
 RUN apk add pipx

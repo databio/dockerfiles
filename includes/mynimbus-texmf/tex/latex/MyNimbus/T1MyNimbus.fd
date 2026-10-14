@@ -1,0 +1,14 @@
+\ProvidesFile{T1MyNimbus.fd}
+\DeclareFontFamily{T1}{MyNimbus}{}
+\DeclareFontShape{T1}{MyNimbus}{m}{n}{<-> MyNimbus-Regular-tlf-t1}{}
+\DeclareFontShape{T1}{MyNimbus}{m}{it}{<-> MyNimbus-Italic-tlf-t1}{}
+\DeclareFontShape{T1}{MyNimbus}{m}{sl}{<-> ssub * MyNimbus/m/it}{}
+\DeclareFontShape{T1}{MyNimbus}{s60}{n}{<-> MyNimbus-Semi60-tlf-t1}{}
+\DeclareFontShape{T1}{MyNimbus}{s60}{it}{<-> MyNimbus-Semi60Italic-tlf-t1}{}
+\DeclareFontShape{T1}{MyNimbus}{s80}{n}{<-> MyNimbus-Semi80-tlf-t1}{}
+\DeclareFontShape{T1}{MyNimbus}{s80}{it}{<-> MyNimbus-Semi80Italic-tlf-t1}{}
+\DeclareFontShape{T1}{MyNimbus}{b}{n}{<-> MyNimbus-Bold-tlf-t1}{}
+\DeclareFontShape{T1}{MyNimbus}{b}{it}{<-> MyNimbus-BoldItalic-tlf-t1}{}
+\DeclareFontShape{T1}{MyNimbus}{bx}{n}{<-> ssub * MyNimbus/b/n}{}
+\DeclareFontShape{T1}{MyNimbus}{bx}{it}{<-> ssub * MyNimbus/b/it}{}
+\endinput
