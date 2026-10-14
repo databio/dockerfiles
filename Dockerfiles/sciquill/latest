@@ -32,6 +32,10 @@ RUN tlmgr install \
 RUN tlmgr install \
     tabto-ltx transparent tabu pdfpages ctable pdflscape
 
+# Heading font (IBM Plex Sans; real SemiBold weight). Separate layer
+# with its own self-update so the cached layers above are reused.
+RUN tlmgr update --self && tlmgr install plex
+
 # System tools
 RUN apk add --update --no-cache python3 bash && ln -sf python3 /usr/bin/python
 RUN apk add pipx
