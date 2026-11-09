@@ -1,0 +1,18 @@
+# Graphics environment (visualization software): Inkscape, ImageMagick, rsvg.
+# Built on plain Ubuntu, without TeX; use databio/texextra for LaTeX.
+
+FROM ubuntu:26.04
+
+LABEL maintainer="Nathan Sheffield <nathan@code.databio.org>"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula \
+      select true | debconf-set-selections && \
+    apt-get install -y --no-install-recommends \
+      inkscape imagemagick librsvg2-bin \
+      ttf-mscorefonts-installer fonts-dejavu fontconfig \
+      libcanberra-gtk3-module && \
+    fc-cache -f && \
+    rm -rf /var/lib/apt/lists/*
